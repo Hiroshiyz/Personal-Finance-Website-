@@ -1,0 +1,16 @@
+{%extends 'base.html' %}{% block content%}
+<div id="cash-info">
+  <h2>金融戶頭</h2>
+  <table class="table table-bordered">
+    <tr>
+      <td>台幣總額:{{data['td']}}元</td>
+      <td>美元總額:{{data['ud']}}元</td>
+      <td>
+        今日匯率:{{data['currency']}}(來源:全球即時匯率API:https://tw.rter.info/howto_currencyapi.php
+        )
+      </td>
+      <td>現金總額:{{data['total']}}元</td>
+    </tr>
+  </table>
+</div>
+{% endblock %}

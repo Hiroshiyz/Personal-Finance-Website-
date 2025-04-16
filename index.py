@@ -1,10 +1,12 @@
+import os
 from flask import Flask, render_template, request, g, redirect
 # Flask 框架 #render_template render web page #requset http request #g SQL一個method #redirect導回
 import sqlite3
 import requests
 import math
-
-
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('agg')
 app = Flask(__name__)
 DATABASE = 'datafile.db'
 
@@ -101,9 +103,40 @@ def home():
         # 單一股票總市值*100 / 所有股票總市值
         stock['value_percenatge'] = round(
             stock['total_value'] * 100 / total_stock_vlaue, 2)
-
+    # 繪製股票圓餅圖
+    if len(unique_stock_list) != 0:
+        labels = tuple(unique_stock_list)
+        sizes = [d['total_value'] for d in stock_info]
+        fig, ax = plt.subplots(figsize=(6, 5))
+        ax.pie(sizes, labels=labels, autopct=None, shadow=None)
+        fig.subplots_adjust(top=1, bottom=0, right=1,
+                            left=0, hspace=0, wspace=0)
+        plt.savefig("static/piechart.jpg", dpi=200)
+    else:
+        # 如果所有資料都被刪除就remove
+        try:
+            os.remove("static/piechart.jpg")
+        except:
+            pass
+    # 繪製股票現金圓餅圖
+    if us_dollars != 0 and taiwanese_dollars != 0 and total_stock_vlaue != 0:
+        labels = ('USD', "TWD", "Stock")
+        sizes = (us_dollars *
+                 currency['USDTWD']['Exrate'], taiwanese_dollars, total_stock_vlaue)
+        fig, ax = plt.subplots(figsize=(6, 5))
+        ax.pie(sizes, labels=labels, autopct=None, shadow=None)
+        fig.subplots_adjust(top=1, bottom=0, right=1,
+                            left=0, hspace=0, wspace=0)
+        plt.savefig("static/piechart2.jpg", dpi=200)
+        # 如果所有資料都被刪除就remove
+    else:
+        try:
+            os.remove("static/piechart2.jpg")
+        except:
+            pass
     #  用一個dict 給html讀取資料
-    data = {'total': total, 'currency': currency['USDTWD']
+    data = {'show_pic_1': os.path.exists('static/piechart.jpg'), 'show_pic_2': os.path.exists('static/piechart2.jpg'),
+            'total': total, 'currency': currency['USDTWD']
             ['Exrate'], 'ud': us_dollars, 'td': taiwanese_dollars, 'cash_result': cash_result, 'stock_info': stock_info}
     return render_template('index.html', data=data)
 
